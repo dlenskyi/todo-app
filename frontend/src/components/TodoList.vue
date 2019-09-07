@@ -1,63 +1,70 @@
 <template>
   <div class="hello">
-    <h1 class="title">TODO List</h1>
 
-    <hr>
-
-    <div class=" block-top columns">
+    <div class="columns">
       <div class="column is-one-third is-offset-one-third">
-        <form @submit.prevent="addTask">
 
-          <div class="field">
-            <label class="label">Description</label>
-            <div class="control">
-              <input class="input" type="text" v-model="description">
+        <!-- Title and delete button -->
+        <div class="title content">
+          <p>
+            TODO list
+            <span @click="delTask" class="icon is-small is-right">
+                <i class="fas fa-trash"></i>
+            </span>
+        </p>
+        </div>
+
+        <!-- Displays done and undone tasks -->
+        <div>
+
+          <!-- Case if task is done -->
+          <div v-for="task in tasks" v-if="task.status == 1">
+            <div class="card-content">
+              <div class="content info">
+                <span @click="resetStatus(task.id)" class="icon checkboxes">
+                  <font-awesome-icon :icon="['fas', 'check-circle']" size="2x" />
+                </span>
+              </div>
+                <span class="task-description">
+                  {{ task.description }}
+                </span>
             </div>
           </div>
 
-          <div class="field is-grouped is-grouped-centered">
-            <div class="control">
-              <button class="button is-link">Add task!</button>
+          <!-- Case if task is undone -->
+          <div class="" v-else>
+            <div class="card-content">
+              <div class="content info">
+                <span @click="setStatus(task.id)" class="icon checkboxes">
+                  <font-awesome-icon :icon="['far', 'circle']" size="2x" />
+                </span>
+              </div>
+                <span class="task-description">
+                  {{ task.description }}
+                </span>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
 
-    <!-- <hr> -->
-
-    <div class=" block-bot columns">
+    <!-- Field for adding tasks -->
+    <div class="columns">
       <div class="column is-one-third is-offset-one-third">
-        <h2 class="subtitle"><b>Tasks</b></h2>
-        <div class="todo">
-          <div class="card finished" v-for="task in tasks" v-if="task.status == 1">
-            <div class="card-content">
-              <div class="content info">
-                {{ task.description }}
+        <form @submit.prevent="addTask">
+          <div class="field is-horizontal">
+              <div class="field-label is-normal">
+                <span @click="addTask" class="icon plus-icon is-small">
+                  <font-awesome-icon :icon="['fas', 'plus']" />
+                </span>
               </div>
-            </div>
-
-            <footer class="card-footer">
-              <!-- When you click 'Done', setStatus will be called and the task's id will be passed as a parameter to the function -->
-              <a class="card-footer-item button is-light" @click="resetStatus(task.id)">Undone</a>
-              <a class="card-footer-item button button is-light" @click="delTask(task.id)">Delete</a>
-            </footer>
-          </div>
-          <div class="card not-finished" v-else>
-            <div class="card-content">
-              <div class="content info">
-                {{ task.description }}
+              <div class="field-body">
+                <p class="control">
+                  <input class="input" placeholder="Enter new task here!" type="text" v-model="description">
+                </p>
               </div>
-            </div>
-
-            <footer class="card-footer">
-              <a class="card-footer-item button is-primary" @click="setStatus(task.id)">
-                Done</a>
-              <a class="card-footer-item button is-danger" @click="delTask(task.id)">
-                Delete</a>
-            </footer>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   </div>
@@ -121,6 +128,7 @@ export default {
       }
     },
 
+
     // This func sets task as done
     setStatus: function (task_id) {
       var description = '';
@@ -148,6 +156,7 @@ export default {
         }
       })
     },
+
     // Opposite to previous func
     resetStatus: function (task_id) {
       var description = '';
@@ -175,64 +184,75 @@ export default {
         }
       })
     },
-    // It deleted task from db
-    delTask: function (task_id) {
-      for (var i = 0; i < this.tasks.length; i++) {
-        if (this.tasks[i].id === task_id) {
+
+    // It deletes all selected tasks from db
+    delTask: function () {
+      var i = this.tasks.length;
+      while (i--) {
+        if (this.tasks[i].status === 1) {
+          axios({
+            method: 'delete',
+            url: 'http://127.0.0.1:8000/tasks/' + this.tasks[i].id,
+            auth: {
+              username: 'root',
+              password: '1234'
+            }
+          })
           this.tasks.splice(i, 1);
-          break
         }
       }
-      axios({
-        method: 'delete',
-        url: 'http://127.0.0.1:8000/tasks/' + task_id,
-        auth: {
-          username: 'root',
-          password: '1234'
-        }
-    }).then(response => {
-      this.tasks.splice(task_id, 1);
-    })
-    }
+    },
   }
 }
 </script>
 
 <style scoped>
 
-  h2 {
-    font-size: 1.5em;
+  .title>p {
+    background-color: #EEEEEE;
+    color: #6C6C6C;
+    padding: 8px 0 8px 8px;
+    font-size: 1.3rem;
+    text-align: left;
+    font-weight: 100;
+    border-radius: 3%;
   }
 
-  .card {
-    margin-bottom: 25px;
+  .title .icon {
+    position: relative;
+    float: right;
+    right: 3%;
+    padding-top: 5px;
   }
 
-  .done {
-    opacity: 0.3;
+  .icon {
+    cursor: pointer;
   }
 
-  .finished {
-    background-color: silver;
+  .fa-trash {
+    color: black;
   }
 
-  .not-finished {
-    background-color: #E6CFA8;
+  .checkboxes {
+    float: left;
+    margin-right: 5px;
+
   }
 
-  .block-top {
-    background-color: #F3F3F3;
-    border-top: 2px solid #AFCA88;
-    border-left: 2px solid #AFCA88;
-    border-right: 2px solid #AFCA88;
+  .plus-icon {
+    position: relative;
+    top: 3px;
   }
 
-  .info {
+  .task-description {
+    float: left;
+    font-size: 1.7em;
+    margin-left: 15%;
+    position: relative;
+    bottom: 30px;
     word-wrap:break-word;
+    text-align: left;
+    max-width: 85%;
   }
 
-  .block-bot {
-    background-color: #F3F3F3;
-    border: 2px solid #AFCA88;
-  }
 </style>
