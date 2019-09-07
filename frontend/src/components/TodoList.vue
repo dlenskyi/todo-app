@@ -54,7 +54,7 @@
         <form @submit.prevent="addTask">
           <div class="field is-horizontal">
               <div class="field-label is-normal">
-                <span @click="addTask" class="icon plus-icon is-small">
+                <span @click="addTask" class="is-hidden-mobile icon plus-icon is-small">
                   <font-awesome-icon :icon="['fas', 'plus']" />
                 </span>
               </div>
