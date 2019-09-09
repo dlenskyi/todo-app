@@ -1,5 +1,7 @@
 # todo-app
 
+![](presentation.gif)
+
 ## Technologies
 
 * Frontend: Vue.js
